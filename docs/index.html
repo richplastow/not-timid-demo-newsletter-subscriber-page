@@ -8,29 +8,54 @@
 
     <style>
         /* General styling. */
+        body, fieldset, input {
+            background:#111; color:#eed;
+            text-align:center; font:24px Arial;
+            border: none;
+            outline:none;
+        }
+        h1 { color:#ee3; font-size:72px }
+        br { margin: 10px 0 }
+        input[type=text] {
+            width: 400px;
+            padding:4px;
+            font-size: 0.8em;
+            border-radius: 2px;
+            border: 2px solid #ee2;
+            color:#ee2
+        }
+        fieldset {
+            border:2px solid black;
+            border-radius: 6px;
+            margin: 0 auto;
+            width: 400px;
+        }
+        input[type=checkbox], button {
+            transform: scale(2);
+        }
         button { cursor: pointer; }
         button:disabled { cursor:not-allowed; }
 
         /* Form validation. */
-        .invalid-message { display:none }
-        .valid-message { display:inline }
+        .invalid-message { display:none; font-size: 0.8em; color:red }
+        .valid-message { display:inline; font-size: 0.8em; }
         .is-invalid .invalid-message { display:inline }
         .is-invalid .valid-message { display:none }
-        .is-invalid .validation-border { outline:2px solid red }
+        .is-invalid .validation-border { border:2px solid red }
     </style>
 </head>
 <body>
     <h1>Not Timid</h1>
-    <h2>is coming soon</h2>
+    <h2>Coming Soon</h2>
 
     <form>
         <label for="email" id="email-label">
             <span class="invalid-message">Please enter a valid email address:</span>
             <span class="valid-message">Email:</span>
             <br>
-            <input type="text" id="email" name="email" class="validation-border"
-                placeholder="e.g. kim.77@example.com">
+            <input type="text" id="email" name="email" class="validation-border">
         </label>
+        <br>
         <br>
 
         <fieldset id="flags">
@@ -39,23 +64,24 @@
                 <span class="valid-message">I would like to:</span>
                 <br>
 
-                <label for="launch-alert-flag-1">Get notified when the demo launches</label>
+                <label for="launch-alert-flag-1">Be notified when it launches</label>
                 <br>
                 <input type="checkbox" checked="checked" id="launch-alert-flag-1" name="launch-alert-flag-1">
-                <br>
+                <br style="margin:0 0 40px 0">
 
                 <label for="newsletter-flag-2">Sign up for monthly newsletters</label>
                 <br>
                 <input type="checkbox" checked="checked" id="newsletter-flag-2" name="newsletter-flag-2">
-                <br>
+                <br style="margin:0 0 40px 0">
 
                 <label for="get-involved-flag-4">Get involved</label>
                 <br>
                 <input type="checkbox" checked="checked" id="get-involved-flag-4" name="get-involved-flag-4">
-                <br>
+                <br style="margin:0 0 40px 0">
 
             </div>
         </fieldset>
+        <br>
 
         <button type="submit" id="subscribe" disabled="disabled">Subscribe</button>
     </form>
@@ -160,6 +186,7 @@
                         return;
                     }
                     console.log('OK!');
+                    window.location.href = './subscribed.html';
                 }
             }
             xhr.send('{"email":"' + trimmedEmail + '","flag":' + flag + '}');
