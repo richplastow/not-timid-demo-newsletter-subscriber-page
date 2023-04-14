@@ -4,11 +4,166 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Not Timid Demo Newsletter Subscriber Page</title>
+    <title>Not Timid is coming soon</title>
+
+    <style>
+        /* General styling. */
+        button { cursor: pointer; }
+        button:disabled { cursor:not-allowed; }
+
+        /* Form validation. */
+        .invalid-message { display:none }
+        .valid-message { display:inline }
+        .is-invalid .invalid-message { display:inline }
+        .is-invalid .valid-message { display:none }
+        .is-invalid .validation-border { outline:2px solid red }
+    </style>
 </head>
 <body>
-    <h1>Not Timid Demo Newsletter Subscriber Page</h1>
-    <p>An initial tryout HTML client, for the <code>not-timid-demo-server</code>
-        /v0/newsletter/subscriber/ endpoint</p>
+    <h1>Not Timid</h1>
+    <h2>is coming soon</h2>
+
+    <form>
+        <label for="email" id="email-label">
+            <span class="invalid-message">Please enter a valid email address:</span>
+            <span class="valid-message">Email:</span>
+            <br>
+            <input type="text" id="email" name="email" class="validation-border"
+                placeholder="e.g. kim.77@example.com">
+        </label>
+        <br>
+
+        <fieldset id="flags">
+            <div class="validation-border">
+                <span class="invalid-message">Please tick a checkbox:</span>
+                <span class="valid-message">I would like to:</span>
+                <br>
+
+                <label for="launch-alert-flag-1">Get notified when the demo launches</label>
+                <br>
+                <input type="checkbox" checked="checked" id="launch-alert-flag-1" name="launch-alert-flag-1">
+                <br>
+
+                <label for="newsletter-flag-2">Sign up for monthly newsletters</label>
+                <br>
+                <input type="checkbox" checked="checked" id="newsletter-flag-2" name="newsletter-flag-2">
+                <br>
+
+                <label for="get-involved-flag-4">Get involved</label>
+                <br>
+                <input type="checkbox" checked="checked" id="get-involved-flag-4" name="get-involved-flag-4">
+                <br>
+
+            </div>
+        </fieldset>
+
+        <button type="submit" id="subscribe" disabled="disabled">Subscribe</button>
+    </form>
+
+    <script>
+        // String.prototype.trim() polyfill, originally from
+        // developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/Trim
+        String.prototype.trim = String.prototype.trim || function trim() {
+            return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '') }
+    </script>
+
+    <script>!function(){
+        // As a fun exercise, and to maximise compatibility, these script are
+        // written in pre-ES6 JavaScript. Get ready for some retro computing :-D
+
+        var $form = document.getElementsByTagName('form')[0];
+        var $email = document.getElementById('email');
+        var $emailLabel = document.getElementById('email-label');
+        var $flags = document.getElementById('flags');
+        var $flag1 = document.getElementById('launch-alert-flag-1');
+        var $flag2 = document.getElementById('newsletter-flag-2');
+        var $flag4 = document.getElementById('get-involved-flag-4');
+        var $subscribe = document.getElementById('subscribe');
+        $email.focus();
+
+        // Deal with changes to the form.
+        $form.addEventListener('change', onFormChangeOrInput);
+        $email.addEventListener('input', onFormChangeOrInput);
+        var didChange = false;
+        var emailIsValid = false;
+        var someClicked = false;
+        var trimmedEmail = '';
+        onFormChangeOrInput();
+        function onFormChangeOrInput(evt) {
+            // Don't show the "...valid email address" message until the user
+            // has had a chance to enter their email address.
+            if (evt && evt.type === 'change') didChange = true;
+
+            // Check whether the email is currently valid.
+            trimmedEmail = $email.value.trim();
+            emailIsValid =
+                /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,24}$/i.test(trimmedEmail);
+
+            // Show the "...valid email address" message, and a red border round
+            // the email input, if the email address is invalid.
+            $emailLabel.className = didChange && !emailIsValid
+                ? 'is-invalid' : '';
+
+            // Check that at least one checkbox has been ticked.
+            someTicked = $flag1.checked || $flag2.checked || $flag4.checked;
+
+            // Show the "...valid email address" message, and a red border round
+            // the email input, if the email address is invalid.
+            $flags.className = (didChange || !evt) && !someTicked
+                ? 'is-invalid' : '';
+
+            // Enable the submit button if the email address is valid, and
+            // at least one of the checkboxes is ticked.
+            $subscribe.disabled = emailIsValid && someTicked ? '' : 'disabled';
+        }
+
+        // Deal with the form being submitted.
+        $subscribe.addEventListener('click', onSubscribeClick);
+        function onSubscribeClick(evt) {
+            // Stop the browser submitting the form and refreshing the page.
+            evt.preventDefault();
+
+            // Xx.
+            onFormChangeOrInput();
+
+            // Calculate the `flag` value.
+            var flag = 0
+                + ($flag1.checked && 1)
+                + ($flag2.checked && 2)
+                + ($flag4.checked && 4);
+
+            var base = 'https://ck2rwngbsd.eu-central-1.awsapprunner.com';
+            // var base = 'http://localhost:8080';
+            var endpoint = '/v0/newsletter/subscriber/';
+
+            // Set up a new XHR object. This pre-fetch() code is based on:
+            // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/send#example_post
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', base + endpoint, true);
+
+            // Send the proper header information along with the request.
+            // xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+            xhr.setRequestHeader('Content-Type', 'application/json');
+
+            // Call a function when the state changes.
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                    // Try to parse the server's response.
+                    var response; try { response = JSON.parse(xhr.response);
+                    } catch (err) {
+                        console.error('xhr.response could not be parsed', err);
+                        return;
+                    }
+                    if (!response || !response.data || !response.data.result ||
+                        response.data.result !== 'Created') { console.error(
+                            'Unexpected xhr.response.data.result', response.data.result);
+                        return;
+                    }
+                    console.log('OK!');
+                }
+            }
+            xhr.send('{"email":"' + trimmedEmail + '","flag":' + flag + '}');
+        }
+    }()</script>
 </body>
 </html>
